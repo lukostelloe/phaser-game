@@ -1,0 +1,16 @@
+{
+  "name": "my-phaser-game",
+  "version": "1.0.0",
+  "description": "My Phaser Game",
+  "scripts": {
+    "start": "webpack-dev-server --open"
+  },
+  "dependencies": {
+    "phaser": "^3.55.2"
+  },
+  "devDependencies": {
+    "webpack": "^5.88.2",
+    "webpack-cli": "^5.1.4",
+    "webpack-dev-server": "^4.15.1"
+  }
+}
