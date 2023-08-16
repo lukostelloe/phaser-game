@@ -13,7 +13,7 @@ const config = {
 const game = new Phaser.Game(config);
 
 let player; // Reference to the blue player sprite
-let bullet; // reference to the bullet sprite
+let bullet; // Reference to the bullet sprite
 
 function create() {
   // Create a black background for the canvas
@@ -26,8 +26,10 @@ function create() {
 
   // Create the blue player sprite
   player = this.add.rectangle(400, 300, 25, 25, 0x0000ff); // Blue color
-  bullet = this.add.rectangle(450, 350, 10, 10, 0xffff00); // yellow color
+  bullet = this.add.rectangle(player.x, player.y, 10, 10, 0xffff00); // Yellow color
 }
+
+// ... (your previous code)
 
 let moveYellowSquare = false; // Flag to control continuous movement of the yellow square
 let bulletDirection; // Store the initial bullet direction
@@ -36,24 +38,31 @@ let bulletMoving = false; // Flag to indicate if the bullet is moving
 let lastCursorKey; // Track the last cursor key pressed
 
 function update() {
-  // Check for arrow key input and move the player within the canvas
+  // Check for arrow key input and move the player and bullet within the canvas
   const cursors = this.input.keyboard.createCursorKeys();
   const jKey = this.input.keyboard.addKey("J");
 
-  if (cursors.left.isDown && player.x > 100) {
-    player.x -= 5;
-    lastCursorKey = "left";
-  } else if (cursors.right.isDown && player.x < config.width - 125) {
-    player.x += 5;
-    lastCursorKey = "right";
-  }
+  // Move the player and bullet relatively before pressing "J"
+  if (!moveYellowSquare) {
+    if (cursors.left.isDown && player.x > 100) {
+      player.x -= 5;
+      bullet.x -= 5;
+      lastCursorKey = "left";
+    } else if (cursors.right.isDown && player.x < config.width - 125) {
+      player.x += 5;
+      bullet.x += 5;
+      lastCursorKey = "right";
+    }
 
-  if (cursors.up.isDown && player.y > 100) {
-    player.y -= 5;
-    lastCursorKey = "up";
-  } else if (cursors.down.isDown && player.y < config.height - 125) {
-    player.y += 5;
-    lastCursorKey = "down";
+    if (cursors.up.isDown && player.y > 100) {
+      player.y -= 5;
+      bullet.y -= 5;
+      lastCursorKey = "up";
+    } else if (cursors.down.isDown && player.y < config.height - 125) {
+      player.y += 5;
+      bullet.y += 5;
+      lastCursorKey = "down";
+    }
   }
 
   // Check if "J" key is pressed and start moving the bullet
@@ -62,8 +71,20 @@ function update() {
     bulletDirection = lastCursorKey;
   }
 
-  // Move the bullet continuously in the initial direction after pressing "J"
+  // Move the bullet independently after pressing "J"
   if (moveYellowSquare) {
+    if (cursors.left.isDown && player.x > 100) {
+      player.x -= 5;
+    } else if (cursors.right.isDown && player.x < config.width - 125) {
+      player.x += 5;
+    }
+
+    if (cursors.up.isDown && player.y > 100) {
+      player.y -= 5;
+    } else if (cursors.down.isDown && player.y < config.height - 125) {
+      player.y += 5;
+    }
+
     bulletMoving = true;
 
     if (bulletDirection === "left" && bullet.x > 80) {
