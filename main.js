@@ -2,32 +2,45 @@ import Phaser from "phaser";
 
 const config = {
   type: Phaser.AUTO,
-  width: 800,
-  height: 600,
+  width: 1000,
+  height: 800,
   scene: {
     create: create,
     update: update,
+    preload: preload,
   },
 };
 
 const game = new Phaser.Game(config);
 
-let player; // Reference to the blue player sprite
-let bullet; // Reference to the bullet sprite
+let scene;
+let player;
+let bullet;
 let hearts = [];
 let zombies = [];
 let superZombies = [];
 let superZombieHits = 0;
-let superZombieRespawnDelay = 5000;
 let killcountText;
 let killcount = 0;
-const numZombies = 3;
-const numSuperZombies = 1;
+let numZombies = 3;
+let numSuperZombies = 1;
 let heartPickup;
 let moveYellowSquare = false; // Flag to control continuous movement of the yellow square
 let bulletDirection; // Store the initial bullet direction
 let bulletMoving = false; // Flag to indicate if the bullet is moving
 let lastCursorKey; // Track the last cursor key pressed
+
+const numColumns = 4; // Number of columns in your sprite sheet
+const numRows = 3; // Number of rows in your sprite sheet
+const numFrames = numColumns * numRows;
+
+function preload() {
+  this.load.spritesheet("zombieSheet", "images/zombie_sheet.png", {
+    frameWidth: 20, // Width of each frame in pixels
+    frameHeight: 60, // Height of each frame in pixels
+  });
+  console.log("preload called");
+}
 
 // Function to toggle the color of the circle between black and orange
 function toggleCircleColor(circle) {
@@ -39,6 +52,7 @@ function toggleCircleColor(circle) {
 }
 
 function create() {
+  scene = this;
   // Create a black background for the canvas
   this.add.rectangle(0, 0, config.width, config.height, 0x000000);
 
@@ -51,6 +65,7 @@ function create() {
   player = this.add.rectangle(400, 300, 25, 25, 0x0000ff); // Blue color
   bullet = this.add.rectangle(player.x, player.y, 10, 10, 0xffff00); // Yellow color
 
+  //add hearts to the display and array
   const heart1 = this.add.rectangle(25, 25, 10, 10, 0xff0000);
   const heart2 = this.add.rectangle(40, 25, 10, 10, 0xff0000);
   const heart3 = this.add.rectangle(55, 25, 10, 10, 0xff0000);
@@ -82,7 +97,14 @@ function create() {
       zombieY = Math.random() * config.height;
     }
 
-    const newZombie = this.add.rectangle(zombieX, zombieY, 20, 20, 0x00ff00);
+    const randomFrameIndex = Math.floor(Math.random() * numFrames); // Choose a random frame index
+    const newZombie = scene.add.sprite(
+      zombieX,
+      zombieY,
+      "zombieSheet",
+      randomFrameIndex
+    );
+    newZombie.setScale(2); // Adjust the scale as needed
     zombies.push(newZombie);
   }
 
@@ -262,7 +284,7 @@ function update() {
     zombieDirectionY /= length;
 
     // Move the zombie towards the player
-    const zombieSpeed = 1; // Adjust the speed as needed
+    const zombieSpeed = 0.8; // Adjust the speed as needed
 
     if (!zombie.isFrozen) {
       zombie.x += zombieDirectionX * zombieSpeed;
@@ -273,7 +295,6 @@ function update() {
     if (checkCollision(bullet, zombie)) {
       // Stop zombie movement temporarily
       zombie.isFrozen = true;
-      zombie.setFillStyle(0xff0000);
 
       // Delay for a brief moment (in milliseconds)
       const delayDuration = 800; // 1 second delay
@@ -281,12 +302,12 @@ function update() {
         // After the delay, respawn the zombie and resume movement
         respawnZombie(zombie);
         zombie.isFrozen = false;
-        zombie.setFillStyle(0x00ff00);
       });
 
       // Increment the killcount and update the text
       killcount++;
       killcountText.setText(`killcount: ${killcount}`);
+      checkZombieKillCount();
     }
 
     // Check for collision between player and zombie
@@ -494,4 +515,36 @@ function respawnHeartPickup() {
   // Add both the circle and square as children of the heartPickup group
   heartPickup.add(orangeCircle);
   heartPickup.add(redSquare);
+}
+
+function checkZombieKillCount() {
+  if (killcount % 10 === 0) {
+    numZombies++;
+
+    // Create the additional zombies based on the updated numZombies value
+    const numNewZombies = numZombies - zombies.length;
+    if (numNewZombies > 0) {
+      for (let i = 0; i < numNewZombies; i++) {
+        const randomEdge = Math.floor(Math.random() * 4);
+        let zombieX, zombieY;
+
+        if (randomEdge === 0) {
+          zombieX = Math.random() * config.width;
+          zombieY = 0;
+        } else if (randomEdge === 1) {
+          zombieX = config.width;
+          zombieY = Math.random() * config.height;
+        } else if (randomEdge === 2) {
+          zombieX = Math.random() * config.width;
+          zombieY = config.height;
+        } else {
+          zombieX = 0;
+          zombieY = Math.random() * config.height;
+        }
+
+        const newZombie = scene.add.image(zombieX, zombieY, "zombie");
+        zombies.push(newZombie);
+      }
+    }
+  }
 }
