@@ -1,49 +1,65 @@
 import Phaser from "phaser";
 
+const sceneConfig = {
+  create: create,
+  update: update,
+  preload: preload,
+};
+
+const scaleConfig = {
+  mode: Phaser.Scale.FIT,
+  autoCenter: Phaser.Scale.CENTER_BOTH,
+};
+
 const config = {
   type: Phaser.AUTO,
-  width: 1000,
-  height: 800,
-  scene: {
-    create: create,
-    update: update,
-    preload: preload,
-  },
-  scale: {
-    mode: Phaser.Scale.FIT,
-    autoCenter: Phaser.Scale.CENTER_BOTH,
-  },
+  width: 1200,
+  height: 600,
+  scene: sceneConfig,
+  scale: scaleConfig,
 };
 
 const game = new Phaser.Game(config);
 
 let scene;
+
 let player;
+let lastCursorKey;
+let lastFacingDirection = "right";
+
 let bullet;
+let bulletDirection;
+let bulletMoving = false;
+let bulletVisible = false;
+
 let hearts = [];
-let zombies = [];
-let superZombies = [];
-let superZombieHits = 0;
-let killcountText;
 let killcount = 0;
-let numZombies = 3;
-let numSuperZombies = 1;
+let killcountText;
+
 let heartPickup;
 let moveYellowSquare = false; // Flag to control continuous movement of the yellow square
-let bulletDirection; // Store the initial bullet direction
-let bulletMoving = false; // Flag to indicate if the bullet is moving
-let lastCursorKey; // Track the last cursor key pressed
 
-const numColumns = 4; // Number of columns in your sprite sheet
-const numRows = 3; // Number of rows in your sprite sheet
-const numFrames = numColumns * numRows;
+let zombies = [];
+let numZombies = 3;
+
+let superZombies = [];
+let superZombieHits = 0;
+let numSuperZombies = 1;
 
 function preload() {
-  this.load.spritesheet("zombieSheet", "images/zombie_sheet.png", {
-    frameWidth: 32, // Width of each frame in pixels
-    frameHeight: 32, // Height of each frame in pixels
+  this.load.spritesheet("zombieSheet", "images/zombie/zombie_sheet.png", {
+    frameWidth: 32,
+    frameHeight: 32,
   });
-  console.log("preload called");
+
+  this.load.spritesheet(
+    "playerSheetIdle",
+    "images/player/player_sheet_idle.png",
+    {
+      frameWidth: 40,
+      frameHeight: 40,
+    }
+  );
 }
 
 // Function to toggle the color of the circle between black and orange
@@ -60,14 +76,17 @@ function create() {
   // Create a black background for the canvas
   this.add.rectangle(0, 0, config.width, config.height, 0x000000);
 
+  const hudContainer = this.add.container(0, 0);
+
   // Draw the red border around the inside section
   const graphics = this.add.graphics();
   graphics.lineStyle(5, 0xff0000, 1); // Red color, line thickness 5
   graphics.strokeRect(75, 75, config.width - 150, config.height - 150);
 
-  // Create the blue player sprite
-  player = this.add.rectangle(400, 300, 25, 25, 0x0000ff); // Blue color
-  bullet = this.add.rectangle(player.x, player.y, 10, 10, 0xffff00); // Yellow color
+  player = scene.add.sprite(500, 300, "playerSheetIdle");
+  player.setScale(2);
+  bullet = this.add.rectangle(player.x, player.y, 10, 10, 0xffff00);
+  bullet.setVisible(false); // Yellow color
 
   //add hearts to the display and array
   const heart1 = this.add.rectangle(25, 25, 10, 10, 0xff0000);
@@ -160,6 +179,13 @@ function create() {
     color: "#ffffff",
   });
 
+  hearts.forEach((heart) => {
+    hudContainer.add(heart);
+  });
+  hudContainer.add(killcountText);
+
+  hudContainer.setScrollFactor(0);
+
   // Delay for 5 seconds (5000 milliseconds)
   const delayDuration = 3000;
   this.time.delayedCall(delayDuration, () => {
@@ -234,6 +260,20 @@ function update() {
       lastCursorKey = "right";
     }
 
+    // Update the lastFacingDirection based on the movement
+    if (lastCursorKey === "left") {
+      lastFacingDirection = "left";
+    } else if (lastCursorKey === "right") {
+      lastFacingDirection = "right";
+    }
+
+    // Update the player's scale based on the lastFacingDirection
+    if (lastFacingDirection === "left") {
+      player.setScale(-2, 2); // Flip horizontally by setting a negative x scale
+    } else {
+      player.setScale(2, 2); // Set back to normal scale
+    }
+
     if (
       cursors.up.isDown &&
       player.y - player.height / 2 - collisionOffset > 100
@@ -255,6 +295,9 @@ function update() {
   if (jKey.isDown && lastCursorKey && !moveYellowSquare && !bulletMoving) {
     moveYellowSquare = true;
     bulletDirection = lastCursorKey;
+
+    bulletVisible = true;
+    bullet.setVisible(true);
   }
 
   // Move the bullet independently after pressing "J"
@@ -287,6 +330,12 @@ function update() {
       bullet.y = player.y;
       moveYellowSquare = false;
       bulletMoving = false;
+    }
+
+    if (bulletMoving) {
+      bullet.setVisible(bulletVisible);
+    } else {
+      bullet.setVisible(false);
     }
   }
 
@@ -337,6 +386,7 @@ function update() {
   });
 
   // Move each superZombie towards the player
+
   superZombies.forEach((superZombie) => {
     let superZombieDirectionX = player.x - superZombie.x;
     let superZombieDirectionY = player.y - superZombie.y;
