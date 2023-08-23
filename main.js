@@ -40,8 +40,8 @@ const numFrames = numColumns * numRows;
 
 function preload() {
   this.load.spritesheet("zombieSheet", "images/zombie_sheet.png", {
-    frameWidth: 20, // Width of each frame in pixels
-    frameHeight: 60, // Height of each frame in pixels
+    frameWidth: 32, // Width of each frame in pixels
+    frameHeight: 32, // Height of each frame in pixels
   });
   console.log("preload called");
 }
@@ -101,14 +101,26 @@ function create() {
       zombieY = Math.random() * config.height;
     }
 
-    const randomFrameIndex = Math.floor(Math.random() * numFrames); // Choose a random frame index
-    const newZombie = scene.add.sprite(
-      zombieX,
-      zombieY,
-      "zombieSheet",
-      randomFrameIndex
-    );
-    newZombie.setScale(2); // Adjust the scale as needed
+    const newZombie = scene.add.sprite(zombieX, zombieY, "zombieSheet", 9);
+    newZombie.setScale(2);
+
+    const walkAnimationKey = "walk" + i; // Create a unique animation key for each zombie
+    scene.anims.create({
+      key: walkAnimationKey,
+      frames: scene.anims.generateFrameNumbers("zombieSheet", {
+        start: 9,
+        end: 15,
+        first: 9,
+      }),
+      frameRate: 10,
+      repeat: -1,
+    });
+
+    newZombie.anims.play(walkAnimationKey); // Start playing the "walk" animation
+
+    // Store the animation key in the zombie object
+    newZombie.walkAnimationKey = walkAnimationKey;
+
     zombies.push(newZombie);
   }
 
