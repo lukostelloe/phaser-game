@@ -9,6 +9,10 @@ const config = {
     update: update,
     preload: preload,
   },
+  scale: {
+    mode: Phaser.Scale.FIT,
+    autoCenter: Phaser.Scale.CENTER_BOTH,
+  },
 };
 
 const game = new Phaser.Game(config);
@@ -196,6 +200,9 @@ function update() {
   const jKey = this.input.keyboard.addKey("J");
 
   const collisionOffset = -15;
+
+  scene.cameras.main.scrollX = player.x - scene.cameras.main.width / 2;
+  scene.cameras.main.scrollY = player.y - scene.cameras.main.height / 2;
 
   // Move the player and bullet relatively before pressing "J"
   if (!moveYellowSquare) {
