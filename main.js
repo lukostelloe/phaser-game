@@ -60,6 +60,8 @@ function preload() {
       frameHeight: 40,
     }
   );
+
+  this.load.image("street", "images/terrain/street.png");
 }
 
 // Function to toggle the color of the circle between black and orange
