@@ -618,7 +618,23 @@ function checkZombieKillCount() {
           zombieY = Math.random() * config.height;
         }
 
-        const newZombie = scene.add.image(zombieX, zombieY, "zombie");
+        const newZombie = scene.add.sprite(zombieX, zombieY, "zombieSheet", 9);
+        newZombie.setScale(2);
+
+        const walkAnimationKey = "walk" + (zombies.length + i); // Unique animation key
+        scene.anims.create({
+          key: walkAnimationKey,
+          frames: scene.anims.generateFrameNumbers("zombieSheet", {
+            start: 9,
+            end: 15,
+            first: 9,
+          }),
+          frameRate: 10,
+          repeat: -1,
+        });
+
+        newZombie.anims.play(walkAnimationKey); // Start playing the "walk" animation
+        newZombie.walkAnimationKey = walkAnimationKey;
         zombies.push(newZombie);
       }
     }
