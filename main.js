@@ -32,6 +32,11 @@ let bulletDirection;
 let bulletMoving = false;
 let bulletVisible = false;
 
+let pistol;
+let rifle;
+let shotgun;
+let assault_rifle;
+
 let hearts = [];
 let killcount = 0;
 let killcountText;
@@ -62,6 +67,11 @@ function preload() {
   );
 
   this.load.image("street", "images/terrain/street.png");
+
+  this.load.image("pistol", "images/guns/pistol.png");
+  this.load.image("rifle", "images/guns/rifle.png");
+  this.load.image("shotgun", "images/guns/shotgun.png");
+  this.load.image("assaultrifle", "images/guns/assault_rifle.png");
 }
 
 // Function to toggle the color of the circle between black and orange
@@ -175,16 +185,19 @@ function create() {
   // }
 
   // Create a text object to display the killcount
-  killcountText = this.add.text(25, 50, `killcount: ${killcount}`, {
+  killcountText = this.add.text(20, 50, `killcount: ${killcount}`, {
     fontFamily: "Arial",
     fontSize: 20,
     color: "#ffffff",
   });
 
+  pistol = scene.add.sprite(35, 100, "pistol");
+
   hearts.forEach((heart) => {
     hudContainer.add(heart);
   });
   hudContainer.add(killcountText);
+  hudContainer.add(pistol);
 
   hudContainer.setScrollFactor(0);
 
