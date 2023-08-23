@@ -144,33 +144,33 @@ function create() {
   }
 
   // Create mulitple superZombie sprites and add them to the zombies array
-  for (let i = 0; i < numSuperZombies; i++) {
-    const randomEdge = Math.floor(Math.random() * 4);
-    let superZombieX, superZombieY;
+  // for (let i = 0; i < numSuperZombies; i++) {
+  //   const randomEdge = Math.floor(Math.random() * 4);
+  //   let superZombieX, superZombieY;
 
-    if (randomEdge === 0) {
-      superZombieX = Math.random() * config.width;
-      superZombieY = 0;
-    } else if (randomEdge === 1) {
-      superZombieX = config.width;
-      superZombieY = Math.random() * config.height;
-    } else if (randomEdge === 2) {
-      superZombieX = Math.random() * config.width;
-      superZombieY = config.height;
-    } else {
-      superZombieX = 0;
-      superZombieY = Math.random() * config.height;
-    }
+  //   if (randomEdge === 0) {
+  //     superZombieX = Math.random() * config.width;
+  //     superZombieY = 0;
+  //   } else if (randomEdge === 1) {
+  //     superZombieX = config.width;
+  //     superZombieY = Math.random() * config.height;
+  //   } else if (randomEdge === 2) {
+  //     superZombieX = Math.random() * config.width;
+  //     superZombieY = config.height;
+  //   } else {
+  //     superZombieX = 0;
+  //     superZombieY = Math.random() * config.height;
+  //   }
 
-    const newSuperZombie = this.add.rectangle(
-      superZombieX,
-      superZombieY,
-      40,
-      40,
-      0xffa500
-    );
-    superZombies.push(newSuperZombie);
-  }
+  //   const newSuperZombie = this.add.rectangle(
+  //     superZombieX,
+  //     superZombieY,
+  //     40,
+  //     40,
+  //     0xffa500
+  //   );
+  //   superZombies.push(newSuperZombie);
+  // }
 
   // Create a text object to display the killcount
   killcountText = this.add.text(25, 50, `killcount: ${killcount}`, {
@@ -357,6 +357,13 @@ function update() {
     if (!zombie.isFrozen) {
       zombie.x += zombieDirectionX * zombieSpeed;
       zombie.y += zombieDirectionY * zombieSpeed;
+    }
+
+    // Update zombie flip based on its position relative to the player
+    if (zombie.x > player.x) {
+      zombie.setFlipX(true); // Flip horizontally
+    } else {
+      zombie.setFlipX(false); // Reset flip
     }
 
     // Check for collision between bullet and zombie
