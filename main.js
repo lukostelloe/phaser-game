@@ -14,7 +14,7 @@ const scaleConfig = {
 const config = {
   type: Phaser.AUTO,
   width: 1200,
-  height: 600,
+  height: 700,
   scene: sceneConfig,
   scale: scaleConfig,
 };
@@ -36,6 +36,11 @@ let pistol;
 let rifle;
 let shotgun;
 let assault_rifle;
+
+const weaponTypes = ["pistol", "shotgun", "rifle", "assaultrifle"];
+let weaponPickups = [];
+let currentWeaponPickup = null;
+let weaponInHand = "pistol";
 
 let hearts = [];
 let killcount = 0;
@@ -71,7 +76,7 @@ function preload() {
   this.load.image("pistol", "images/guns/pistol.png");
   this.load.image("rifle", "images/guns/rifle.png");
   this.load.image("shotgun", "images/guns/shotgun.png");
-  this.load.image("assaultrifle", "images/guns/assault_rifle.png");
+  this.load.image("assaultrifle", "images/guns/assaultrifle.png");
 }
 
 // Function to toggle the color of the circle between black and orange
@@ -191,7 +196,7 @@ function create() {
     color: "#ffffff",
   });
 
-  pistol = scene.add.sprite(35, 100, "pistol");
+  pistol = scene.add.sprite(50, 100, "pistol");
 
   hearts.forEach((heart) => {
     hudContainer.add(heart);
@@ -244,6 +249,14 @@ function create() {
     // Add both the circle and square as children of the heartPickup group
     heartPickup.add(orangeCircle);
     heartPickup.add(redSquare);
+  });
+
+  // Spawn weapon pickups one at a time
+  this.time.addEvent({
+    delay: delayDuration,
+    callback: spawnWeaponPickup,
+    loop: true,
+    callbackScope: this,
   });
 }
 
@@ -485,6 +498,15 @@ function update() {
       }
     }
   }
+
+  //Collision between player and weapon pick up
+  // Check for collision between player and weapon pickups
+  weaponPickups.forEach((weaponPickup) => {
+    if (checkCollision(player, weaponPickup)) {
+      // Handle the collision here, for example:
+      handleWeaponPickup(weaponPickup);
+    }
+  });
 }
 
 // When a collision between the zombie and player occurs
@@ -515,6 +537,48 @@ function checkCollision(rect1, rect2) {
     rect1.y < rect2.y + rect2.height &&
     rect1.y + rect1.height > rect2.y
   );
+}
+
+function spawnWeaponPickup() {
+  if (currentWeaponPickup === null) {
+    const minX = 100;
+    const maxX = config.width - 150;
+    const minY = 100;
+    const maxY = config.height - 150;
+
+    const randomX = Phaser.Math.Between(minX, maxX);
+    const randomY = Phaser.Math.Between(minY, maxY);
+
+    // Randomly select a weapon type
+    const randomWeaponIndex = Phaser.Math.Between(0, weaponTypes.length - 1);
+    const randomWeaponType = weaponTypes[randomWeaponIndex];
+
+    const weaponPickup = scene.add.sprite(randomX, randomY, randomWeaponType);
+    weaponPickup.setScale(1);
+    weaponPickups.push(weaponPickup);
+
+    currentWeaponPickup = weaponPickup;
+
+    // Delay before allowing the next weapon to spawn
+    const respawnDelayDuration = 5000; // Delay in milliseconds
+    this.time.delayedCall(respawnDelayDuration, () => {
+      currentWeaponPickup = null;
+      spawnWeaponPickup.call(this);
+    });
+  }
+}
+
+function handleWeaponPickup(weaponPickup) {
+  // Update weapon in hand based on the picked up weapon
+  const pickedWeaponType = weaponPickup.texture.key;
+  weaponInHand = pickedWeaponType;
+
+  // Update the texture of the weapon sprite in the HUD container
+  pistol.setTexture(pickedWeaponType);
+
+  // Remove the weapon pickup from the scene and array
+  weaponPickup.destroy();
+  weaponPickups = weaponPickups.filter((pickup) => pickup !== weaponPickup);
 }
 
 function respawnZombie(zombieToRespawn) {
