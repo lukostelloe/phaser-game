@@ -41,6 +41,7 @@ const weaponTypes = ["pistol", "shotgun", "rifle", "assaultrifle"];
 let weaponPickups = [];
 let currentWeaponPickup = null;
 let weaponInHand = "pistol";
+let isWeaponPickupOnScreen = false;
 
 let hearts = [];
 let killcount = 0;
@@ -255,7 +256,6 @@ function create() {
   this.time.addEvent({
     delay: delayDuration,
     callback: spawnWeaponPickup,
-    loop: true,
     callbackScope: this,
   });
 }
@@ -540,7 +540,7 @@ function checkCollision(rect1, rect2) {
 }
 
 function spawnWeaponPickup() {
-  if (currentWeaponPickup === null) {
+  if (!isWeaponPickupOnScreen) {
     const minX = 100;
     const maxX = config.width - 150;
     const minY = 100;
@@ -558,13 +558,7 @@ function spawnWeaponPickup() {
     weaponPickups.push(weaponPickup);
 
     currentWeaponPickup = weaponPickup;
-
-    // Delay before allowing the next weapon to spawn
-    const respawnDelayDuration = 5000; // Delay in milliseconds
-    this.time.delayedCall(respawnDelayDuration, () => {
-      currentWeaponPickup = null;
-      spawnWeaponPickup.call(this);
-    });
+    isWeaponPickupOnScreen = true; // Set the flag to indicate pickup is on screen
   }
 }
 
@@ -579,6 +573,11 @@ function handleWeaponPickup(weaponPickup) {
   // Remove the weapon pickup from the scene and array
   weaponPickup.destroy();
   weaponPickups = weaponPickups.filter((pickup) => pickup !== weaponPickup);
+  isWeaponPickupOnScreen = false; // Reset the flag
+
+  // Respawn weapon pickup after a delay
+  const respawnDelay = 5000; // 5 seconds in milliseconds
+  scene.time.delayedCall(respawnDelay, spawnWeaponPickup, [], scene);
 }
 
 function respawnZombie(zombieToRespawn) {
