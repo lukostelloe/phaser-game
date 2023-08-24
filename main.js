@@ -31,11 +31,9 @@ let bullet;
 let bulletDirection;
 let bulletMoving = false;
 let bulletVisible = false;
+let bulletSpeed;
 
 let pistol;
-let rifle;
-let shotgun;
-let assault_rifle;
 
 const weaponTypes = ["pistol", "shotgun", "rifle", "assaultrifle"];
 let weaponPickups = [];
@@ -344,14 +342,23 @@ function update() {
 
     bulletMoving = true;
 
+    bulletSpeed =
+      weaponInHand === "rifle"
+        ? 50
+        : weaponInHand === "assaultrifle"
+        ? 75
+        : weaponInHand === "shotgun"
+        ? 20
+        : 18;
+
     if (bulletDirection === "left" && bullet.x > 80) {
-      bullet.x -= 18;
+      bullet.x -= bulletSpeed;
     } else if (bulletDirection === "right" && bullet.x < config.width - 85) {
-      bullet.x += 18;
+      bullet.x += bulletSpeed;
     } else if (bulletDirection === "up" && bullet.y > 80) {
-      bullet.y -= 18;
+      bullet.y -= bulletSpeed;
     } else if (bulletDirection === "down" && bullet.y < config.height - 85) {
-      bullet.y += 18;
+      bullet.y += bulletSpeed;
     } else {
       // Move the bullet back to the player's position
       bullet.x = player.x;
