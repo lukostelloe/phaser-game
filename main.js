@@ -51,10 +51,6 @@ let moveYellowSquare = false; // Flag to control continuous movement of the yell
 let zombies = [];
 let numZombies = 3;
 
-let superZombies = [];
-let superZombieHits = 0;
-let numSuperZombies = 1;
-
 function preload() {
   this.load.spritesheet("zombieSheet", "images/zombie/zombie_sheet.png", {
     frameWidth: 32,
@@ -158,35 +154,6 @@ function create() {
 
     zombies.push(newZombie);
   }
-
-  // Create mulitple superZombie sprites and add them to the zombies array
-  // for (let i = 0; i < numSuperZombies; i++) {
-  //   const randomEdge = Math.floor(Math.random() * 4);
-  //   let superZombieX, superZombieY;
-
-  //   if (randomEdge === 0) {
-  //     superZombieX = Math.random() * config.width;
-  //     superZombieY = 0;
-  //   } else if (randomEdge === 1) {
-  //     superZombieX = config.width;
-  //     superZombieY = Math.random() * config.height;
-  //   } else if (randomEdge === 2) {
-  //     superZombieX = Math.random() * config.width;
-  //     superZombieY = config.height;
-  //   } else {
-  //     superZombieX = 0;
-  //     superZombieY = Math.random() * config.height;
-  //   }
-
-  //   const newSuperZombie = this.add.rectangle(
-  //     superZombieX,
-  //     superZombieY,
-  //     40,
-  //     40,
-  //     0xffa500
-  //   );
-  //   superZombies.push(newSuperZombie);
-  // }
 
   // Create a text object to display the killcount
   killcountText = this.add.text(20, 50, `killcount: ${killcount}`, {
@@ -427,60 +394,6 @@ function update() {
     }
   });
 
-  // Move each superZombie towards the player
-
-  superZombies.forEach((superZombie) => {
-    let superZombieDirectionX = player.x - superZombie.x;
-    let superZombieDirectionY = player.y - superZombie.y;
-
-    // Normalize the direction vector
-    const length = Math.sqrt(
-      superZombieDirectionX * superZombieDirectionX +
-        superZombieDirectionY * superZombieDirectionY
-    );
-    superZombieDirectionX /= length;
-    superZombieDirectionY /= length;
-
-    // Move the zombie towards the player
-    const superZombieSpeed = 0.5; // Adjust the speed as needed
-
-    if (!superZombie.isFrozen) {
-      superZombie.x += superZombieDirectionX * superZombieSpeed;
-      superZombie.y += superZombieDirectionY * superZombieSpeed;
-    }
-
-    // Check for collision between bullet and super zombie
-    if (checkCollision(bullet, superZombie)) {
-      // Stop zombie movement temporarily
-      superZombie.isFrozen = true;
-      superZombie.setFillStyle(0xff0000);
-
-      // Delay for a brief moment (in milliseconds)
-      const delayDuration = 800; // 1 second delay
-      this.time.delayedCall(delayDuration, () => {
-        // respawnSuperZombie(superZombie);
-        superZombieHits++;
-        if (superZombieHits > 9) {
-          superZombie.destroy();
-          superZombieHits = 0;
-        }
-
-        superZombie.isFrozen = false;
-        superZombie.setFillStyle(0xffa500);
-      });
-
-      // Increment the killcount and update the text
-      killcount++;
-      killcountText.setText(`killcount: ${killcount}`);
-    }
-
-    // Check for collision between player and zombie
-    if (checkCollision(player, superZombie)) {
-      respawnSuperZombie(superZombie);
-      handleZombiePlayerCollision(superZombie);
-    }
-  });
-
   // Check for collision between player and heart pickup
   if (heartPickup && heartPickup.getChildren().length > 0) {
     if (checkGroupCollision(player, heartPickup)) {
@@ -608,30 +521,6 @@ function respawnZombie(zombieToRespawn) {
     }
 
     zombies[zombieIndex].setPosition(zombieX, zombieY);
-  }
-}
-
-function respawnSuperZombie(superZombieToRespawn) {
-  const superZombieIndex = superZombies.indexOf(superZombieToRespawn);
-  if (superZombieIndex !== -1) {
-    const randomEdge = Math.floor(Math.random() * 4);
-    let superZombieX, superZombieY;
-
-    if (randomEdge === 0) {
-      superZombieX = Math.random() * config.width;
-      superZombieY = 0;
-    } else if (randomEdge === 1) {
-      superZombieX = config.width;
-      superZombieY = Math.random() * config.height;
-    } else if (randomEdge === 2) {
-      superZombieX = Math.random() * config.width;
-      superZombieY = config.height;
-    } else {
-      superZombieX = 0;
-      superZombieY = Math.random() * config.height;
-    }
-
-    superZombies[superZombieIndex].setPosition(superZombieX, superZombieY);
   }
 }
 

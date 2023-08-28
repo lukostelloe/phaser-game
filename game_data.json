@@ -1,0 +1,34 @@
+{
+  "player": {
+    "x": 500,
+    "y": 300,
+    "weaponInHand": "pistol",
+    "hearts": 5
+  },
+  "zombies": [
+    { "x": 200, "y": 100 },
+    { "x": 800, "y": 200 }
+  ],
+  "weaponPickups": [
+    { "x": 300, "y": 400, "type": "shotgun" },
+    { "x": 700, "y": 500, "type": "rifle" }
+  ],
+
+  "hearts": [
+    { "x": 25, "y": 25 },
+    { "x": 40, "y": 25 },
+    { "x": 55, "y": 25 },
+    { "x": 70, "y": 25 },
+    { "x": 85, "y": 25 }
+  ],
+  "killcount": 0,
+  "tilemap": {
+    "tileset": "city_terrain",
+    "layer": "terrain_layer",
+    "tiles": [
+      { "x": 500, "y": 500, "tileId": 1 },
+      { "x": 800, "y": 800, "tileId": 2 },
+      { "x": 2000, "y": 2000, "tileId": 3 }
+    ]
+  }
+}
