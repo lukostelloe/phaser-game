@@ -1,4 +1,5 @@
 import Phaser from "phaser";
+import gameData from "./game_data.json";
 
 const sceneConfig = {
   create: create,
@@ -37,8 +38,8 @@ let pistol;
 
 const weaponTypes = ["pistol", "shotgun", "rifle", "assaultrifle"];
 let weaponPickups = [];
-let currentWeaponPickup = null;
 let weaponInHand = "pistol";
+let currentWeaponPickup = null;
 let isWeaponPickupOnScreen = false;
 
 let hearts = [];
@@ -46,7 +47,7 @@ let killcount = 0;
 let killcountText;
 
 let heartPickup;
-let moveYellowSquare = false; // Flag to control continuous movement of the yellow square
+let moveYellowSquare = false;
 
 let zombies = [];
 let numZombies = 3;
@@ -65,8 +66,6 @@ function preload() {
       frameHeight: 40,
     }
   );
-
-  this.load.image("street", "images/terrain/street.png");
 
   this.load.image("pistol", "images/guns/pistol.png");
   this.load.image("rifle", "images/guns/rifle.png");
